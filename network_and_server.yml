@@ -140,22 +140,6 @@ Resources:
             Roles:
             - Ref: RootRole
 
-    LoadBalancerSecGroup:
-            Type: AWS::EC2::SecurityGroup
-            Properties:
-                GroupDescription: Allow http traffic to and from load balancer
-                VpcId: !Ref VPC
-                SecurityGroupIngress:
-                -   IpProtocol: tcp
-                    FromPort: 0
-                    ToPort: 65535
-                    CidrIp: 0.0.0.0/0
-                SecurityGroupEgress:
-                -   IpProtocol: tcp
-                    FromPort: 0
-                    ToPort: 65535
-                    CidrIp: 0.0.0.0/0
-
     WebServerSecGroup:
         Type: AWS::EC2::SecurityGroup
         Properties:
@@ -241,7 +225,7 @@ Resources:
         Type: AWS::ElasticLoadBalancingV2::LoadBalancer
         Properties:
             SecurityGroups:
-            - Ref: LoadBalancerSecGroup
+            - Ref: WebServerSecGroup
             Subnets:
             - !Ref PublicSubnet1
             - !Ref PublicSubnet2
