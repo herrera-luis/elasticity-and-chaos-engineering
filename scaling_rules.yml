@@ -1,0 +1,68 @@
+Description: >
+    Plaftforms Community Project - Scaling Rules
+
+Parameters:
+
+    EnvironmentName:
+        Description: An environment name that will be prefixed to resources
+        Type: String
+        
+Resources:
+
+    ScaleUpPolicy:
+        Type: AWS::AutoScaling::ScalingPolicy
+        Properties:
+            AdjustmentType: ChangeInCapacity
+            AutoScalingGroupName:
+                Fn::ImportValue: 
+                    Fn::Sub: "${EnvironmentName}-ASG"
+            Cooldown: '1'
+            ScalingAdjustment: 1
+
+    ScaleDownPolicy:
+        Type: AWS::AutoScaling::ScalingPolicy
+        Properties:
+            AdjustmentType: ChangeInCapacity
+            AutoScalingGroupName:
+                Fn::ImportValue: 
+                    Fn::Sub: "${EnvironmentName}-ASG"
+            Cooldown: '1'
+            ScalingAdjustment: -1
+
+    MemoryAlarmHigh:
+        Type: AWS::CloudWatch::Alarm
+        Properties:
+            EvaluationPeriods: 1
+            Statistic: Average
+            Threshold: 70
+            AlarmDescription: Go in Alarm is memory is higher than 70% for 60 seconds
+            Period: 60
+            AlarmActions:
+            - Ref: ScaleUpPolicy
+            Namespace: CWAgent
+            Dimensions:
+            -   Name: AutoScalingGroupName
+                Value: 
+                    Fn::ImportValue: 
+                        Fn::Sub: "${EnvironmentName}-ASG"
+            ComparisonOperator: GreaterThanThreshold
+            MetricName: mem_used_percent
+
+    MemoryAlarmLow:
+        Type: AWS::CloudWatch::Alarm
+        Properties:
+            EvaluationPeriods: 1
+            Statistic: Average
+            Threshold: 30
+            AlarmDescription: Go in Alarm is memory is lower than 30% for 60 seconds
+            Period: 60
+            AlarmActions:
+            - Ref: ScaleDownPolicy
+            Namespace: CWAgent
+            Dimensions:
+            -   Name: AutoScalingGroupName
+                Value:
+                    Fn::ImportValue: 
+                        Fn::Sub: "${EnvironmentName}-ASG"
+            ComparisonOperator: LessThanOrEqualToThreshold
+            MetricName: mem_used_percent
