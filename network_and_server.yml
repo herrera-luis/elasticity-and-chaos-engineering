@@ -185,9 +185,8 @@ Resources:
                     docker run -l service=nginx --name nginx-app -p 80:80 -d -v /app/:/usr/share/nginx/html nginx
                     # Install Gremlin
                     echo "deb https://deb.gremlin.com/ release non-free" | sudo tee /etc/apt/sources.list.d/gremlin.list
-                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C81FC2F43A48B25808F9583BDFF170F324D41134 \
-                    9CDB294B29A5B1E2E00C24C022E8EF3461A50EF6
-                    sudo apt-get install -y gremlin gremlind
+                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C81FC2F43A48B25808F9583BDFF170F324D41134 9CDB294B29A5B1E2E00C24C022E8EF3461A50EF6
+                    sudo apt-get update && sudo apt-get install -y gremlin gremlind
                     # Install Python and awscli
                     sudo apt-get install -y python2.7
                     curl -O https://bootstrap.pypa.io/get-pip.py
