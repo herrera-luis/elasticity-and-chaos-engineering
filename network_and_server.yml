@@ -200,10 +200,8 @@ Resources:
                     sudo chmod 777 /etc/default/gremlind
                     echo 'GREMLIN_TEAM_CERTIFICATE_OR_FILE="file:///var/lib/gremlin/gremlin.pub_cert.pem"' >> /etc/default/gremlind
                     echo 'GREMLIN_TEAM_PRIVATE_KEY_OR_FILE="file:///var/lib/gremlin/gremlin.priv_key.pem"' >> /etc/default/gremlind
-                    export GREMLIN_TEAM_ID=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | \
-                    jq ' {secrets: .SecretString} | tostring | '.[35:71]'' | tr -d '"')
-                    export GREMLIN_TEAM_SECRET=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | \
-                    jq ' {secrets: .SecretString} | tostring | '.[100:136]'' | tr -d '"')
+                    export GREMLIN_TEAM_ID=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | jq ' {secrets: .SecretString} | tostring | '.[35:71]'' | tr -d '"')
+                    export GREMLIN_TEAM_SECRET=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | jq ' {secrets: .SecretString} | tostring | '.[100:136]'' | tr -d '"')
                     echo 'GREMLIN_TEAM_ID='$GREMLIN_TEAM_ID'' >> /etc/default/gremlind
                     echo 'GREMLIN_TEAM_SECRET='$GREMLIN_TEAM_SECRET'' >> /etc/default/gremlind
                     sudo systemctl reload gremlind
