@@ -169,8 +169,11 @@ Resources:
                     ca-certificates \
                     curl \
                     gnupg-agent \
-                    software-properties-common \
-                    awscli
+                    software-properties-common
+                    sudo apt-get install -y python2.7
+                    curl -O https://bootstrap.pypa.io/get-pip.py
+                    sudo python2.7 get-pip.py
+                    sudo pip install awscli
                     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
                     add-apt-repository \
                     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -183,6 +186,20 @@ Resources:
                     chmod 777 -R /app/
                     aws s3 cp s3://c3pipelines-devops /app/ --recursive
                     docker run -l service=nginx --name nginx-app -p 80:80 -d -v /app/:/usr/share/nginx/html nginx
+                    # Install Gremlin
+                    echo "deb https://deb.gremlin.com/ release non-free" | sudo tee /etc/apt/sources.list.d/gremlin.list
+                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C81FC2F43A48B25808F9583BDFF170F324D41134 9CDB294B29A5B1E2E00C24C022E8EF3461A50EF6
+                    sudo apt-get update && sudo apt-get install -y gremlin gremlind
+                    # Install jq
+                    sudo apt-get -y install jq
+                    # Configuring Gremlin Daemon
+                    sudo mv /etc/default/gremlind.example /etc/default/gremlind
+                    sudo chmod 777 /etc/default/gremlind
+                    echo 'GREMLIN_TEAM_CERTIFICATE_OR_FILE="file:///var/lib/gremlin/gremlin.pub_cert.pem"' >> /etc/default/gremlind
+                    echo 'GREMLIN_TEAM_PRIVATE_KEY_OR_FILE="file:///var/lib/gremlin/gremlin.priv_key.pem"' >> /etc/default/gremlind
+                    echo  GREMLIN_TEAM_ID=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | jq ' {secrets: .SecretString} | tostring | '.[35:71]'' | tr -d '\"') >> /etc/default/gremlind
+                    echo  GREMLIN_TEAM_SECRET=$(aws secretsmanager get-secret-value --secret-id xconf/gremlin --region us-west-1 --output json | jq ' {secrets: .SecretString} | tostring | '.[100:136]'' | tr -d '\"') >> /etc/default/gremlind
+                    sudo systemctl reload gremlind
             ImageId: ami-052ae783527d1a0c9
             KeyName: platforms-key
             AssociatePublicIpAddress: true
